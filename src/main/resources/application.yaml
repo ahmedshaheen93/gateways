@@ -5,6 +5,30 @@ server:
   tomcat:
     uri-encoding: UTF-8
 spring:
+  # ===============================
+  # = DATA SOURCE
+  # ===============================
+  # Set here configurations for the database connection
+  datasource:
+    url: jdbc:mysql://localhost:3306/gateways?createDatabaseIfNotExist=true&useUnicode=yes&characterEncoding=UTF-8&characterSetResults=UTF-8&character_set_server=UTF-8
+    username: root
+    password: root
+    # ===============================
+    # = JPA / HIBERNATE
+    # ===============================
+  jpa:
+    show-sql: true
+    # Allows Hibernate to generate SQL optimized for a particular DBMS
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL5Dialect
+        connection:
+          characterEncoding: utf-8
+          CharSet: utf-8
+          useUnicode: true
+    hibernate:
+      ddl-auto: update
   jackson:
     default-property-inclusion: NON_ABSENT
   # config app to return application/hal+json instead of application/json
