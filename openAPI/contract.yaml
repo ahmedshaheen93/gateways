@@ -1,0 +1,229 @@
+openapi: "3.0.1"
+info:
+  title: gateways project
+  version: 1.0.0
+  description: This sample project is managing gateways - master devices that control multiple peripheral devices.
+paths:
+  /gateways:
+    get:
+      summary: List all getway
+      operationId: getAllGateways
+      tags:
+        - Gateways
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GatewaysResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+    post:
+      summary: create gateway
+      operationId: createGateway
+      tags:
+        - Gateways
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GatewayRequest'
+
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GatewayResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+
+  /gateways/{serialNumber}:
+    get:
+      summary: retive gateway by serial number
+      operationId: getGatewayBySerialNumber
+      tags:
+        - Gateways
+      parameters:
+        - in: path
+          name: serialNumber
+          required: true
+          schema:
+            type: string
+            description: gateway serial number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GatewayResponse'
+        '400':
+          description: invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+        '404':
+          description: Resource Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+    put:
+      summary: update gateway info
+      operationId: updateGateway
+      tags:
+        - Gateways
+      parameters:
+        - in: path
+          name: serialNumber
+          required: true
+          schema:
+            type: string
+            description: gateway serial number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GatewayUpdateRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GatewayResponse'
+        '400':
+          description: invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+        '404':
+          description: Resource Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+
+    delete:
+      summary: delete gateway
+      operationId: deleteGateway
+      tags:
+        - Gateways
+      parameters:
+        - in: path
+          name: serialNumber
+          required: true
+          schema:
+            type: string
+            description: gateway serial number
+      responses:
+        '204':
+          description: no content
+        '400':
+          description: invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+        '404':
+          description: Resource Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+
+components:
+  schemas:
+    GatewaysResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/GatewayResponse'
+      example:
+        - serialNumber: 246810
+          name: HeadPhone
+          ipv4: 210.200.50.1
+
+    GatewayResponse:
+      type: object
+      properties:
+        serialNumber:
+          type: string
+        name:
+          type: string
+        ipv4:
+          type: string
+    GatewayRequest:
+      type: object
+      required:
+        - serialNumber
+        - name
+        - ipv4
+      properties:
+        serialNumber:
+          type: string
+        name:
+          type: string
+        ipv4:
+          type: string
+          pattern: '^((0|1\d?\d?|2[0-4]?\d?|25[0-5]?|[3-9]\d?)\.){3}(0|1\d?\d?|2[0-4]?\d?|25[0-5]?|[3-9]\d?)$'
+    GatewayUpdateRequest:
+      type: object
+      required:
+        - name
+        - ipv4
+      properties:
+        name:
+          type: string
+        ipv4:
+          type: string
+          pattern: '^((0|1\d?\d?|2[0-4]?\d?|25[0-5]?|[3-9]\d?)\.){3}(0|1\d?\d?|2[0-4]?\d?|25[0-5]?|[3-9]\d?)$'
+    ErrorDetails:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        date:
+          type: string
+          format: datetime
+        status:
+          type: string
+        error:
+          type: string
+        uri:
+          type: string
+        message:
+          type: string
