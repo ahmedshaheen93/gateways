@@ -1,0 +1,19 @@
+server:
+  servlet:
+    context-path: /api/v1
+  port: 8088
+  tomcat:
+    uri-encoding: UTF-8
+spring:
+  jackson:
+    default-property-inclusion: NON_ABSENT
+  # config app to return application/hal+json instead of application/json
+  hateoas:
+    use-hal-as-default-json-media-type: false
+  # log into file
+logging:
+  file:
+    name: gateway-app.log
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
