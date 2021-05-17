@@ -2,6 +2,7 @@ package com.musala.gateways.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ public class PeripheralDevice {
     private String vendor;
 
     @Column(name = "CREATED_DATE")
+    @CreatedDate
     private LocalDate createdDate;
 
     @Column(name = "STATUS")

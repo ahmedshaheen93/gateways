@@ -6,6 +6,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,6 +29,7 @@ public class Gateway {
     @Column(name = "IPV4")
     private String ipv4;
 
-    @OneToMany(mappedBy = "gateway")
+    @OneToMany(mappedBy = "gateway", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @Size(max = 10)
     private Set<PeripheralDevice> peripheralDevices = new HashSet<>();
 }
