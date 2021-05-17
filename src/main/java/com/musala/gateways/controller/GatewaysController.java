@@ -1,15 +1,14 @@
 package com.musala.gateways.controller;
 
 import com.musala.gateways.openapi.api.GatewaysApi;
-import com.musala.gateways.openapi.model.GatewayRequest;
-import com.musala.gateways.openapi.model.GatewayResponse;
-import com.musala.gateways.openapi.model.GatewayUpdateRequest;
+import com.musala.gateways.openapi.model.*;
 import com.musala.gateways.service.GateWayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -50,5 +49,30 @@ public class GatewaysController implements GatewaysApi {
         return ResponseEntity.noContent().build();
     }
 
+    @Override
+    public ResponseEntity<List<PeripheralResponse>> getAllPeripherals(String serialNumber) {
+        return ResponseEntity.ok(gateWayService.getPeripheralDevices(serialNumber));
+    }
 
+    @Override
+    public ResponseEntity<PeripheralResponse> createPeripheral(String serialNumber, PeripheralRequest peripheralRequest) {
+        PeripheralResponse response = gateWayService.addPeripheralDevice(serialNumber, peripheralRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Override
+    public ResponseEntity<PeripheralResponse> getPeripheralBySerialNumberAndUid(String serialNumber, BigDecimal uid) {
+        return ResponseEntity.ok(gateWayService.getPeripheralDevicesBySerialNumberAndUid(serialNumber, uid.longValue()));
+    }
+
+    @Override
+    public ResponseEntity<PeripheralResponse> updatePeripheral(String serialNumber, BigDecimal uid, PeripheralUpdateRequest peripheralUpdateRequest) {
+        return ResponseEntity.ok(gateWayService.updatePeripheralDevice(serialNumber, uid.longValue(), peripheralUpdateRequest));
+    }
+
+    @Override
+    public ResponseEntity<Void> deletePeripheral(String serialNumber, BigDecimal uid) {
+        gateWayService.deletePeripheralDeviceBySerialNumberAndUid(serialNumber, uid.longValue());
+        return ResponseEntity.noContent().build();
+    }
 }
