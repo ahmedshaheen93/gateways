@@ -3,6 +3,9 @@ info:
   title: gateways project
   version: 1.0.0
   description: This sample project is managing gateways - master devices that control multiple peripheral devices.
+tags:
+  - name: Gateways
+  - name: Peripherals
 paths:
   /gateways:
     get:
@@ -42,6 +45,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GatewayResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
         '500':
           description: Internal Server Error
           content:
@@ -130,7 +139,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorDetails'
-
     delete:
       summary: delete gateway
       operationId: deleteGateway
@@ -148,6 +156,205 @@ paths:
           description: no content
         '400':
           description: invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+        '404':
+          description: Resource Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+
+  /gateways/{serialNumber}/peripherals:
+    get:
+      summary: List all peripheral devices
+      operationId: getAllPeripherals
+      tags:
+        - Peripherals
+      parameters:
+        - in: path
+          name: serialNumber
+          required: true
+          schema:
+            type: string
+            description: gateway serial number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeripheralsResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+    post:
+      summary: create peripheral device
+      operationId: createPeripheral
+      tags:
+        - Peripherals
+      parameters:
+        - in: path
+          name: serialNumber
+          required: true
+          schema:
+            type: string
+            description: gateway serial number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PeripheralRequest'
+
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeripheralResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+  /gateways/{serialNumber}/peripherals/{uid}:
+    get:
+      summary: |
+        retive peripheral device associated to spacific gateway
+        by gateway serialNumber and peripheral device unique identifer
+      operationId: getPeripheralBySerialNumberAndUid
+      tags:
+        - Peripherals
+      parameters:
+        - in: path
+          name: serialNumber
+          required: true
+          schema:
+            type: string
+            description: gateway serial number
+        - in: path
+          name: uid
+          required: true
+          schema:
+            type: string
+            description: peripheral unique identifer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeripheralResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+        '404':
+          description: Resource Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+    put:
+      summary: update peripheral device info
+      operationId: updatePeripheral
+      tags:
+        - Peripherals
+      parameters:
+        - in: path
+          name: serialNumber
+          required: true
+          schema:
+            type: string
+            description: gateway serial number
+        - in: path
+          name: uid
+          required: true
+          schema:
+            type: string
+            description: peripheral unique identifer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PeripheralUpdateRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeripheralResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+        '404':
+          description: Resource Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetails'
+    delete:
+      summary: delete peripheral device
+      operationId: deletePeripheral
+      tags:
+        - Peripherals
+      parameters:
+        - in: path
+          name: serialNumber
+          required: true
+          schema:
+            type: string
+            description: gateway serial number
+        - in: path
+          name: uid
+          required: true
+          schema:
+            type: string
+            description: peripheral unique identifer
+      responses:
+        '204':
+          description: no content
+        '400':
+          description: bad request
           content:
             application/json:
               schema:
@@ -185,6 +392,8 @@ components:
           type: string
         ipv4:
           type: string
+        peripheralDevices:
+          $ref: '#/components/schemas/PeripheralsResponse'
     GatewayRequest:
       type: object
       required:
@@ -210,6 +419,57 @@ components:
         ipv4:
           type: string
           pattern: '^((0|1\d?\d?|2[0-4]?\d?|25[0-5]?|[3-9]\d?)\.){3}(0|1\d?\d?|2[0-4]?\d?|25[0-5]?|[3-9]\d?)$'
+
+    PeripheralsResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/PeripheralResponse'
+    PeripheralResponse:
+      type: object
+      properties:
+        uid:
+          type: number
+        vendor:
+          type: string
+        createdDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum:
+            - online
+            - offline
+
+    PeripheralRequest:
+      type: object
+      required:
+        - uid
+        - vendor
+        - status
+      properties:
+        uid:
+          type: number
+        vendor:
+          type: string
+        status:
+          type: string
+          enum:
+            - online
+            - offline
+    PeripheralUpdateRequest:
+      type: object
+      required:
+        - vendor
+        - status
+      properties:
+        vendor:
+          type: string
+        status:
+          type: string
+          enum:
+            - online
+            - offline
+
     ErrorDetails:
       type: object
       required:
