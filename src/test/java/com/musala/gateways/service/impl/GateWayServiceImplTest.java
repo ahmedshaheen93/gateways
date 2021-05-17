@@ -8,6 +8,7 @@ import com.musala.gateways.openapi.model.GatewayResponse;
 import com.musala.gateways.openapi.model.GatewayUpdateRequest;
 import com.musala.gateways.repository.GatewayRepository;
 import com.musala.gateways.utils.GatewayMapper;
+import com.musala.gateways.utils.PeripheralDeviceMapper;
 import com.musala.gateways.utils.TestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,8 @@ class GateWayServiceImplTest {
     private GatewayRepository gatewayRepository;
     @Autowired
     private GatewayMapper gatewayMapper;
+    @Autowired
+    private PeripheralDeviceMapper peripheralDeviceMapper;
 
     private GateWayServiceImpl gateWayService;
 
@@ -36,7 +39,7 @@ class GateWayServiceImplTest {
     public void setup() {
         testHelper = new TestHelper();
         gatewayRepository.saveAll(testHelper.gatewayList());
-        gateWayService = new GateWayServiceImpl(gatewayRepository, gatewayMapper);
+        gateWayService = new GateWayServiceImpl(gatewayRepository, gatewayMapper, peripheralDeviceMapper);
     }
 
     @AfterEach
@@ -59,7 +62,7 @@ class GateWayServiceImplTest {
     void getAllGateways_EmptyList() {
         gatewayRepository.deleteAll();
         List<GatewayResponse> allGateways = gateWayService.getAllGateways();
-        assertThat(allGateways.size()).isEqualTo(0);
+        assertThat(allGateways.size()).isZero();
     }
 
     @Test

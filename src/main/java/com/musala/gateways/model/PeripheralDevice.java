@@ -4,18 +4,16 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.Table;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "PERIPHERAL_DEVICES")
+@Embeddable
+@Table(name = "PERIPHERAL_DEVICE")
 @Getter
 @Setter
 public class PeripheralDevice {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID")
-    private Long id;
 
     @Column(name = "UID")
     private Long uid;
@@ -29,7 +27,5 @@ public class PeripheralDevice {
 
     @Column(name = "STATUS")
     private Status status;
-    @ManyToOne
-    private Gateway gateway;
 
 }

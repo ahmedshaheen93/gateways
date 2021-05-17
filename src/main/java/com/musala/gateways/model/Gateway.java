@@ -29,7 +29,8 @@ public class Gateway {
     @Column(name = "IPV4")
     private String ipv4;
 
-    @OneToMany(mappedBy = "gateway", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ElementCollection(fetch = FetchType.LAZY)
     @Size(max = 10)
+    @JoinColumn(name = "GATEWAY_ID")
     private Set<PeripheralDevice> peripheralDevices = new HashSet<>();
 }
