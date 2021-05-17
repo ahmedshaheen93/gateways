@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.musala.gateways.exception.BadRequestException;
 import com.musala.gateways.exception.NotFoundException;
 import com.musala.gateways.openapi.model.GatewayRequest;
+import com.musala.gateways.openapi.model.GatewayResponse;
+import com.musala.gateways.openapi.model.GatewayUpdateRequest;
 import com.musala.gateways.service.GateWayService;
 import com.musala.gateways.utils.TestHelper;
 import org.junit.jupiter.api.BeforeEach;
@@ -182,6 +184,64 @@ class GatewaysControllerTest {
     }
 
     @Test
-    void updateGateway() {
+    void updateGateway() throws Exception {
+        String serial = "serial1";
+        GatewayUpdateRequest request = new GatewayUpdateRequest();
+        request.setName("New Name");
+        request.setIpv4("192.168.1.100");
+
+        GatewayResponse response = new GatewayResponse();
+        response.setSerialNumber(serial);
+        response.setName("New Name");
+        response.setIpv4("192.168.1.100");
+
+        when(gateWayService.update(serial, request)).thenReturn(response);
+        mockMvc.perform(put(GATEWAYS_SERIAL_NUMBER, serial)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.serialNumber").value("serial1"))
+                .andExpect(jsonPath("$.name").value("New Name"))
+                .andExpect(jsonPath("$.ipv4").value("192.168.1.100"));
+    }
+
+    @Test
+    void updateGateway_not_found() throws Exception {
+        String serial = "serial1";
+        GatewayUpdateRequest request = new GatewayUpdateRequest();
+        request.setName("New Name");
+        request.setIpv4("192.168.1.100");
+        when(gateWayService.update(serial, request)).thenThrow(NotFoundException.class);
+        mockMvc.perform(put(GATEWAYS_SERIAL_NUMBER, serial)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateGateway_missing_field() throws Exception {
+        String serial = "serial1";
+        GatewayUpdateRequest request = new GatewayUpdateRequest();
+        request.setIpv4("192.168.1.100");
+        mockMvc.perform(put(GATEWAYS_SERIAL_NUMBER, serial)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateGateway_empty_body() throws Exception {
+        String serial = "serial1";
+        mockMvc.perform(put(GATEWAYS_SERIAL_NUMBER, serial)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 }

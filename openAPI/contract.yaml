@@ -435,10 +435,7 @@ components:
           type: string
           format: date
         status:
-          type: string
-          enum:
-            - online
-            - offline
+          $ref: '#/components/schemas/Status'
 
     PeripheralRequest:
       type: object
@@ -452,10 +449,7 @@ components:
         vendor:
           type: string
         status:
-          type: string
-          enum:
-            - online
-            - offline
+          $ref: '#/components/schemas/Status'
     PeripheralUpdateRequest:
       type: object
       required:
@@ -465,11 +459,13 @@ components:
         vendor:
           type: string
         status:
-          type: string
-          enum:
-            - online
-            - offline
+          $ref: '#/components/schemas/Status'
 
+    Status:
+      type: string
+      enum:
+        - online
+        - offline
     ErrorDetails:
       type: object
       required:

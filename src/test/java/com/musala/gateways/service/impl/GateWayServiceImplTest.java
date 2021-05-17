@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,6 +50,7 @@ class GateWayServiceImplTest {
 
 
     @Test
+    @Transactional
     void getAllGateways() {
         List<Gateway> gateways = testHelper.gatewayList();
         List<GatewayResponse> allGateways = gateWayService.getAllGateways();
@@ -66,6 +68,7 @@ class GateWayServiceImplTest {
     }
 
     @Test
+    @Transactional
     void getGatewayBySerialNumber() {
         String serialNumber = "serial1";
         Optional<Gateway> first = testHelper.gatewayList().stream().findFirst();

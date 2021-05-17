@@ -4,30 +4,32 @@ package com.musala.gateways.utils;
 import com.musala.gateways.model.Gateway;
 import com.musala.gateways.openapi.model.GatewayRequest;
 import com.musala.gateways.openapi.model.GatewayResponse;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
 public class GatewayMapper {
-    private final ModelMapper gateWayModelMapper;
-
-    @Autowired
-    public GatewayMapper(@Qualifier("gateWayModelMapper") ModelMapper gateWayModelMapper) {
-        this.gateWayModelMapper = gateWayModelMapper;
-    }
-
     public GatewayResponse map(Gateway gateway) {
-        return gateWayModelMapper.map(gateway, GatewayResponse.class);
+        GatewayResponse response = new GatewayResponse();
+        response.setSerialNumber(gateway.getSerialNumber());
+        response.setName(gateway.getName());
+        response.setIpv4(gateway.getIpv4());
+        return response;
     }
 
     public GatewayResponse map(GatewayRequest gateway) {
-        return gateWayModelMapper.map(gateway, GatewayResponse.class);
+        GatewayResponse response = new GatewayResponse();
+        response.setSerialNumber(gateway.getSerialNumber());
+        response.setName(gateway.getName());
+        response.setIpv4(gateway.getIpv4());
+        return response;
     }
 
 
     public Gateway mapGateway(GatewayRequest gateway) {
-        return gateWayModelMapper.map(gateway, Gateway.class);
+        Gateway response = new Gateway();
+        response.setSerialNumber(gateway.getSerialNumber());
+        response.setName(gateway.getName());
+        response.setIpv4(gateway.getIpv4());
+        return response;
     }
 }
