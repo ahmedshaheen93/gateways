@@ -3,7 +3,6 @@ package com.musala.gateways.exception;
 
 import com.musala.gateways.openapi.model.ErrorDetails;
 import org.springframework.beans.TypeMismatchException;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,7 +20,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.persistence.EntityNotFoundException;
-import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 
@@ -41,10 +39,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         StringBuilder builder = new StringBuilder();
         ex.getBindingResult()
                 .getFieldErrors()
-                .stream()
-                .peek(fieldError -> builder.append(fieldError.getField()).append(" "))
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .forEach((String s) -> builder.append(s).append("|"));
+                .forEach(fieldError ->
+                        builder.append(String.format("|'%s'|%s", fieldError.getField(),
+                                fieldError.getDefaultMessage())));
 
         String error = builder.toString();
         ErrorDetails errorDetails = buildErrorDetails(error, request.getDescription(false), HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase());
@@ -110,16 +107,17 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
      * @return the ApiError object
      */
     @ExceptionHandler(ConstraintViolationException.class)
-    protected ResponseEntity<Object> handleConstraintViolation(
-            ConstraintViolationException ex) {
+    protected ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex, WebRequest request) {
         StringBuilder builder = new StringBuilder();
         ex.getConstraintViolations()
-                .stream()
-                .map(ConstraintViolation::getMessage)
-                .forEach((String s) -> builder.append(s).append(", "));
+                .forEach(constraintViolation ->
+                        builder.append(String.format("|'%s'|%s", constraintViolation
+                                        .getPropertyPath(),
+                                constraintViolation.getMessage()))
+                );
 
         String error = builder.toString();
-        ErrorDetails errorDetails = buildErrorDetails(error, null, HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase());
+        ErrorDetails errorDetails = buildErrorDetails(error, request.getDescription(false), HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase());
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
@@ -130,10 +128,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
      * @return the ApiError object
      */
     @ExceptionHandler(EntityNotFoundException.class)
-    protected ResponseEntity<Object> handleEntityNotFound(
-            EntityNotFoundException ex) {
+    protected ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException ex, WebRequest request) {
 
-        ErrorDetails errorDetails = buildErrorDetails(ex.getMessage(), null, HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase());
+        ErrorDetails errorDetails = buildErrorDetails(ex.getMessage(), request.getDescription(false), HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase());
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
@@ -224,7 +221,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     protected ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex,
                                                                       WebRequest request) {
-        String error = String.format("The parameter '%s' of value '%s' could not be converted to type '%s'", ex.getName(), ex.getValue(), ex.getRequiredType().getSimpleName());
+        String error = String.format("The parameter '%s' of value '%s' could not be converted to type '%s'", ex.getName(), ex.getValue(), ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "");
         ErrorDetails errorDetails = buildErrorDetails(error, request.getDescription(false), HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase());
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
