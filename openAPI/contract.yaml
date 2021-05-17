@@ -256,7 +256,7 @@ paths:
           name: uid
           required: true
           schema:
-            type: string
+            type: number
             description: peripheral unique identifer
       responses:
         '200':
@@ -299,7 +299,7 @@ paths:
           name: uid
           required: true
           schema:
-            type: string
+            type: number
             description: peripheral unique identifer
       requestBody:
         required: true
@@ -348,7 +348,7 @@ paths:
           name: uid
           required: true
           schema:
-            type: string
+            type: number
             description: peripheral unique identifer
       responses:
         '204':
