@@ -11,4 +11,9 @@ public class AppConfig {
         return new ModelMapper();
     }
 
+    @Bean
+    public ModelMapper peripheralDeviceModelMapper() {
+        return new ModelMapper();
+    }
+
 }

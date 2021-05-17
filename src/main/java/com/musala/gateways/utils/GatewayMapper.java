@@ -6,6 +6,7 @@ import com.musala.gateways.openapi.model.GatewayRequest;
 import com.musala.gateways.openapi.model.GatewayResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,7 +14,7 @@ public class GatewayMapper {
     private final ModelMapper gateWayModelMapper;
 
     @Autowired
-    public GatewayMapper(ModelMapper gateWayModelMapper) {
+    public GatewayMapper(@Qualifier("gateWayModelMapper") ModelMapper gateWayModelMapper) {
         this.gateWayModelMapper = gateWayModelMapper;
     }
 
