@@ -3,9 +3,7 @@ package com.musala.gateways.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.musala.gateways.exception.BadRequestException;
 import com.musala.gateways.exception.NotFoundException;
-import com.musala.gateways.openapi.model.GatewayRequest;
-import com.musala.gateways.openapi.model.GatewayResponse;
-import com.musala.gateways.openapi.model.GatewayUpdateRequest;
+import com.musala.gateways.openapi.model.*;
 import com.musala.gateways.service.GateWayService;
 import com.musala.gateways.utils.TestHelper;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +14,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Collections;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -27,9 +27,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(GatewaysController.class)
-class GatewaysControllerTestMocked {
+class GatewaysControllerMockedTest {
     private static final String GATEWAYS = "/gateways";
     private static final String GATEWAYS_SERIAL_NUMBER = "/gateways/{serialNumber}";
+    private static final String GATEWAYS_SERIAL_NUMBER_PERIPHERAL_DEVICE = "/gateways/{serialNumber}/peripherals";
+    private static final String GATEWAYS_SERIAL_NUMBER_PERIPHERAL_DEVICE_UID = "/gateways/{serialNumber}/peripherals/{uid}";
     @Autowired
     private MockMvc mockMvc;
     @MockBean
@@ -244,4 +246,123 @@ class GatewaysControllerTestMocked {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void get_all_peripheral_devices() throws Exception {
+        String serial = "serial1";
+        when(gateWayService.getPeripheralDevices(serial))
+                .thenReturn(testHelper.mappedPeripheralDevices());
+        mockMvc.perform(get(GATEWAYS_SERIAL_NUMBER_PERIPHERAL_DEVICE, serial)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[*].uid").isNotEmpty())
+                .andExpect(jsonPath("$[*].vendor").isNotEmpty())
+                .andExpect(jsonPath("$[*].createdDate").isNotEmpty())
+                .andExpect(jsonPath("$[*].status").isNotEmpty());
+    }
+
+    @Test
+    void get_all_peripheral_empty_body() throws Exception {
+        String serial = "serial2";
+        when(gateWayService.getPeripheralDevices(serial))
+                .thenReturn(Collections.emptyList());
+        mockMvc.perform(get(GATEWAYS_SERIAL_NUMBER_PERIPHERAL_DEVICE, serial)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    void creat_peripheral_device() throws Exception {
+        String serial = "serial1";
+        PeripheralRequest request = new PeripheralRequest();
+        request.vendor("vendor1");
+        request.setUid(BigDecimal.valueOf(1));
+        request.setStatus(Status.ONLINE);
+        PeripheralResponse response = testHelper.mappedPeripheralDevices().get(0);
+        when(gateWayService.addPeripheralDevice(any(), any())).thenReturn(response);
+        mockMvc.perform(post(GATEWAYS_SERIAL_NUMBER_PERIPHERAL_DEVICE, serial)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+                .andDo(print()).andExpect(status().isCreated())
+                .andExpect(jsonPath("$.uid").value(1))
+                .andExpect(jsonPath("$.vendor").value("vendor1"))
+                .andExpect(jsonPath("$.createdDate").value(LocalDate.now().toString()))
+                .andExpect(jsonPath("$.status").value("online"));
+
+    }
+
+    @Test
+    void creat_peripheral_device_not_found_gateway() throws Exception {
+        String serial = "serial10";
+        PeripheralRequest request = new PeripheralRequest();
+        request.vendor("vendor1");
+        request.setUid(BigDecimal.valueOf(1));
+        request.setStatus(Status.ONLINE);
+        when(gateWayService.addPeripheralDevice(any(), any())).thenThrow(NotFoundException.class);
+        mockMvc.perform(post(GATEWAYS_SERIAL_NUMBER_PERIPHERAL_DEVICE, serial)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+                .andDo(print()).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void creat_peripheral_device_not_exceed_limit() throws Exception {
+        String serial = "serial1";
+        PeripheralRequest request = new PeripheralRequest();
+        request.vendor("vendor1");
+        request.setUid(BigDecimal.valueOf(1));
+        request.setStatus(Status.ONLINE);
+        when(gateWayService.addPeripheralDevice(any(), any())).thenThrow(BadRequestException.class);
+        mockMvc.perform(post(GATEWAYS_SERIAL_NUMBER_PERIPHERAL_DEVICE, serial)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+                .andDo(print()).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void get_peripheral_device_by_serial_uid() throws Exception {
+        String serial = "serial1";
+        BigDecimal uid = new BigDecimal(1);
+        PeripheralRequest request = new PeripheralRequest();
+        request.vendor("vendor1");
+        request.setUid(BigDecimal.valueOf(1));
+        request.setStatus(Status.ONLINE);
+        when(gateWayService.getPeripheralDevicesBySerialNumberAndUid(any(), any())).thenReturn(testHelper.mappedPeripheralDevices().get(0));
+        mockMvc.perform(get(GATEWAYS_SERIAL_NUMBER_PERIPHERAL_DEVICE_UID, serial, uid)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+                .andDo(print()).andExpect(status().isOk());
+    }
+
+    @Test
+    void get_peripheral_device_by_serial_uid_not_found() throws Exception {
+        String serial = "serial1";
+        BigDecimal uid = new BigDecimal(1);
+        PeripheralRequest request = new PeripheralRequest();
+        request.vendor("vendor1");
+        request.setUid(BigDecimal.valueOf(1));
+        request.setStatus(Status.ONLINE);
+        when(gateWayService.getPeripheralDevicesBySerialNumberAndUid(any(), any())).thenReturn(testHelper.mappedPeripheralDevices().get(0));
+        mockMvc.perform(get(GATEWAYS_SERIAL_NUMBER_PERIPHERAL_DEVICE_UID, serial, uid)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+                .andDo(print()).andExpect(status().isOk());
+    }
+
 }
