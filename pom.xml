@@ -8,7 +8,7 @@
         <version>2.4.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.musala</groupId>
+    <groupId>com.shaheen</groupId>
     <artifactId>gateways</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>gateways</name>
@@ -156,8 +156,8 @@
                                 ${project.basedir}/openAPI/contract.yaml
                             </inputSpec>
                             <generatorName>spring</generatorName>
-                            <apiPackage>com.musala.gateways.openapi.api</apiPackage>
-                            <modelPackage>com.musala.gateways.openapi.model</modelPackage>
+                            <apiPackage>com.shaheen.gateways.openapi.api</apiPackage>
+                            <modelPackage>com.shaheen.gateways.openapi.model</modelPackage>
                             <!-- Source generation only -->
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
